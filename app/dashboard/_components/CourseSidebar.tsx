@@ -12,17 +12,22 @@ import { ChevronDown, Play } from "lucide-react";
 import { LessonItem } from "./LessonItem";
 import { usePathname } from "next/navigation";
 import { CourseProgress } from "@/lib/helpers/course-progress";
+import { useState } from "react";
+import { CertificateModal } from "./CertificateGenerator";
 
 interface CourseSidebarProps {
   course: CourseSidebarDataType["course"];
+  userName: string;
 }
-
-export function CourseSidebar({ course }: CourseSidebarProps) {
+export function CourseSidebar({ course, userName }: CourseSidebarProps) {
   const pathname = usePathname();
+  const [open, setOpen] = useState<boolean>(false);
   const currentLessonId = pathname.split("/").pop();
   const { completedLessons, totalLessons, progressPercentage } = CourseProgress(
     { courseData: course },
   );
+  const isCourseCompleted = completedLessons === totalLessons;
+  console.log(userName);
   return (
     <div className="flex flex-col h-full">
       <div className="pb-4 pr-4 border-b border-border">
@@ -90,6 +95,24 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
             </CollapsibleContent>
           </Collapsible>
         ))}
+        <Button
+          className="w-full mt-4"
+          disabled={!isCourseCompleted}
+          onClick={() => setOpen(true)}
+        >
+          Generate Certificate
+        </Button>
+
+        {!isCourseCompleted && (
+          <p className="text-xs text-muted-foreground mt-1 text-center">
+            Complete all lessons to unlock certificate
+          </p>
+        )}
+        <CertificateModal
+          open={open}
+          onClose={() => setOpen(false)}
+          userName={userName} // OR from server wrapper
+        />
       </div>
     </div>
   );

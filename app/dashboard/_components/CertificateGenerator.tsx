@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -17,25 +18,29 @@ export function CertificateModal({ open, onClose, userName }: Props) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
-      <div className="bg-white rounded-xl p-6 w-full max-w-md relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/70 backdrop-blur-sm">
+      <div className="relative w-full max-w-md rounded-xl border bg-background p-6 text-foreground shadow-lg">
+        {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-muted-foreground"
+          className="absolute right-3 top-3 rounded-md p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
         >
-          ✕
+          <X className="h-4 w-4" />
         </button>
 
+        {/* STEP 1 */}
         {step === "choice" && (
           <>
-            <h2 className="text-xl font-semibold mb-4">Generate Certificate</h2>
+            <h2 className="text-xl font-semibold">Generate Certificate</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Choose the name to appear on your certificate
+            </p>
 
-            <p className="text-sm mb-2">Your name on record:</p>
-            <div className="border rounded-md p-3 font-semibold text-center">
+            <div className="mt-4 rounded-md border bg-muted px-4 py-3 text-center font-medium">
               {userName}
             </div>
 
-            <div className="space-y-3 mt-6">
+            <div className="mt-6 space-y-3">
               <Button className="w-full" onClick={() => alert(finalName)}>
                 Use This Name
               </Button>
@@ -51,26 +56,36 @@ export function CertificateModal({ open, onClose, userName }: Props) {
           </>
         )}
 
+        {/* STEP 2 */}
         {step === "input" && (
           <>
-            <h2 className="text-lg font-semibold mb-3">Enter Name</h2>
+            <h2 className="text-lg font-semibold">Enter Name</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              This will be printed on your certificate
+            </p>
 
             <input
-              className="w-full border rounded px-3 py-2 mb-4"
+              className="mt-4 w-full rounded-md border bg-background px-3 py-2 text-sm
+                         focus:outline-none focus:ring-2 focus:ring-ring"
               placeholder="Name on certificate"
               value={customName}
               onChange={(e) => setCustomName(e.target.value)}
             />
 
-            <div className="flex gap-2">
+            <div className="mt-5 flex gap-2">
               <Button
+                className="flex-1"
                 disabled={!customName.trim()}
                 onClick={() => alert(customName)}
               >
                 Generate
               </Button>
 
-              <Button variant="outline" onClick={() => setStep("choice")}>
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setStep("choice")}
+              >
                 Back
               </Button>
             </div>

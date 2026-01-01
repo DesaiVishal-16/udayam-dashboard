@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
-import { CourseSidebar } from "../_components/CourseSidebar";
 import { getCourseSidebarData } from "@/app/data/course/get-course-sidebar-data";
+import CourseSidebarWrapper from "../_components/CourseSiderbarWrapper";
 
 interface CourseLayoutProps {
   params: Promise<{ slug: string }>;
@@ -18,7 +18,7 @@ export default async function CourseLayout({
   return (
     <div className="flex flex-1">
       <div className="w-80 border-r border-border shrink-0">
-        <CourseSidebar course={course.course} />
+        <CourseSidebarWrapper course={course.course} />
       </div>
       <div className="flex-1 overflow-hidden">{children}</div>
     </div>
