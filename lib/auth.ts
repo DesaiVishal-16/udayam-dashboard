@@ -1,0 +1,34 @@
+
+import { betterAuth } from "better-auth";
+import { prismaAdapter } from "better-auth/adapters/prisma";
+import { env } from "./env";
+import { prisma } from "./db";
+import { resend } from "./resend";
+import { emailOTP } from "better-auth/plugins";
+import { admin } from "better-auth/plugins";
+
+export const auth = betterAuth({
+   database: prismaAdapter(prisma, {
+        provider: "postgresql", 
+  }),
+  socialProviders: {
+    google: {
+      clientId: env.AUTH_GOOGLE_CLIENT_ID,
+      clientSecret: env.AUTH_GOOGLE_CLIENT_SECRET,
+    }
+  },
+  plugins: [
+    emailOTP({ 
+      async sendVerificationOTP({ email, otp }) { 
+        await resend.emails.send({
+          from: 'Udayam_AI_Labs <onboarding@resend.dev>',
+          to: [email],
+          subject: 'Udayam AI Labs - Verify your Email',
+          html: `<p>Your OTP is <strong>${otp}</strong></p>.`
+        });
+      }, 
+    }),
+    admin()
+  ]
+});
+
