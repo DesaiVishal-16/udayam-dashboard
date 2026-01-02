@@ -1,7 +1,7 @@
 import { getIndividualCourse } from "@/app/data/course/get-course";
+import RazorpayPaymentButton from "@/components/RazorpayPaymentButton/page";
 import { RenderDescription } from "@/components/rich-text-editor/RenderDescription";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Collapsible,
@@ -9,6 +9,8 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Separator } from "@/components/ui/separator";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/db";
 import { constructUrl } from "@/lib/helpers/construct-url";
 import {
   IconBook,
@@ -20,12 +22,29 @@ import {
 } from "@tabler/icons-react";
 import { CheckIcon } from "lucide-react";
 import Image from "next/image";
+import { headers } from "next/headers";
 
 type Params = Promise<{ slug: string }>;
 
 export default async function SlugPage({ params }: { params: Params }) {
   const { slug } = await params;
   const course = await getIndividualCourse(slug);
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  const user = session?.user;
+
+  const enrollment = user?.id ? await prisma.enrollment.findUnique({
+    where: {
+      userId_courseId: {
+        userId: user.id,
+        courseId: course.id,
+      },
+    },
+  }) : null;
+
+  const isEnrolled = enrollment?.status === "Active";
+
   const thumbnailUrl = constructUrl(course.fileKey);
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 mt-5">
@@ -244,7 +263,25 @@ export default async function SlugPage({ params }: { params: Params }) {
                   </li>
                 </ul>
               </div>
-              <Button className="w-full">Enroll Now!</Button>
+              {user?.id && user?.email && user?.name ? (
+                <RazorpayPaymentButton
+                  courseId={course.id}
+                  userId={user.id}
+                  courseName={course.title}
+                  courseSlug={slug}
+                  amount={course.price}
+                  userEmail={user.email}
+                  userName={user.name}
+                  isEnrolled={isEnrolled}
+                />
+              ) : (
+                <a
+                  href="/login"
+                  className="block w-full text-center bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700"
+                >
+                  Login to Enroll
+                </a>
+              )}
             </CardContent>
           </Card>
         </div>

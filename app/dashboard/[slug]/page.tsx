@@ -12,7 +12,7 @@ export default async function CourseSlugRoute({
   const course = await getCourseSidebarData(slug);
 
   const firstChapter = course.course.chapters[0];
-  const firstLesson = firstChapter.lessons[0];
+  const firstLesson = firstChapter?.lessons?.[0];
   if (firstLesson) {
     redirect(`/dashboard/${slug}/${firstLesson.id}`);
   }
