@@ -112,6 +112,8 @@ export function CourseSidebar({ course, userName }: CourseSidebarProps) {
           open={open}
           onClose={() => setOpen(false)}
           userName={userName} // OR from server wrapper
+          courseName={course.title}
+          courseDuration={course.duration}
         />
       </div>
     </div>
