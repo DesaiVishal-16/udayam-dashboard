@@ -1,6 +1,6 @@
 import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
- 
+
 export const env = createEnv({
   server: {
     DATABASE_URL: z.string().url(),
@@ -15,10 +15,12 @@ export const env = createEnv({
     AWS_ENDPOINT_URL_S3: z.string().min(1),
     AWS_ENDPOINT_URL_IAM: z.string().min(1),
     AWS_REGION: z.string().min(1),
+    RAZORPAY_KEY_SECRET: z.string().min(1),
   },
-   client: {
-     NEXT_PUBLIC_S3_BUCKET_NAME_IMAGES: z.string().min(1),
-   },
+  client: {
+    NEXT_PUBLIC_S3_BUCKET_NAME_IMAGES: z.string().min(1),
+    NEXT_PUBLIC_RAZORPAY_KEY_ID: z.string().min(1),
+  },
   /**
    * What object holds the environment variables at runtime. This is usually
    * `process.env` or `import.meta.env`.
@@ -36,9 +38,12 @@ export const env = createEnv({
     AWS_ENDPOINT_URL_S3: process.env.AWS_ENDPOINT_URL_S3,
     AWS_ENDPOINT_URL_IAM: process.env.AWS_ENDPOINT_URL_IAM,
     AWS_REGION: process.env.AWS_REGION,
-    NEXT_PUBLIC_S3_BUCKET_NAME_IMAGES:process.env.NEXT_PUBLIC_S3_BUCKET_NAME_IMAGES,
+    RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET,
+    NEXT_PUBLIC_S3_BUCKET_NAME_IMAGES:
+      process.env.NEXT_PUBLIC_S3_BUCKET_NAME_IMAGES,
+    NEXT_PUBLIC_RAZORPAY_KEY_ID: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
   },
- 
+
   /**
    * By default, this library will feed the environment variables directly to
    * the Zod validator.
