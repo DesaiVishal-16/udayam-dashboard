@@ -1,5 +1,4 @@
 "use client";
-
 interface CertificatePreviewProps {
   userName: string;
   courseName: string;
@@ -27,6 +26,7 @@ export function CertificatePreview({
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo.png" alt="logo" className="h-30 w-30" />
             <h3 className="text-lg font-bold text-blue-600">UDAYAM AI LABS</h3>
           </div>
