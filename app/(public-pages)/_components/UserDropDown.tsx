@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { useSignOut } from "@/hooks/use-signout";
+import { authClient } from "@/lib/auth-client";
 
 interface UserDropDownProps {
   userName: string;
@@ -30,6 +31,9 @@ export function UserDropDown({
   userImg,
 }: UserDropDownProps) {
   const handleSignOut = useSignOut();
+  const { data: session, isPending } = authClient.useSession();
+  if (isPending) return null;
+  const isAdmin = session?.user.role === "admin";
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -48,11 +52,9 @@ export function UserDropDown({
       <DropdownMenuContent align="end" className="min-w-48">
         <DropdownMenuLabel className="flex min-w-0 flex-col">
           <span className="text-foreground truncate text-sm font-medium">
-            {" "}
             {userName}{" "}
           </span>
           <span className="text-muted-foreground truncate text-xs font-normal">
-            {" "}
             {userEmail}{" "}
           </span>
         </DropdownMenuLabel>
@@ -65,13 +67,13 @@ export function UserDropDown({
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/courses">
+            <Link href={isAdmin ? "/admin/courses":"/courses"}>
               <BookOpen size={16} className="opacity-60" aria-hidden="true" />
               <span>Courses</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/dashboard">
+            <Link href={isAdmin ? "/admin" : "/dashboard"}>
               <LayoutDashboardIcon
                 size={16}
                 className="opacity-60"

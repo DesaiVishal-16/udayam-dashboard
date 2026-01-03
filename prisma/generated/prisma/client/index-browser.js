@@ -128,7 +128,6 @@ exports.Prisma.UserScalarFieldEnum = {
   image: 'image',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  razorpayCustomerId: 'razorpayCustomerId',
   role: 'role',
   banned: 'banned',
   banReason: 'banReason',

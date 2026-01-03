@@ -27,8 +27,6 @@ model User {
   enrollment     Enrollment[]
   lessonProgress LessonProgress[]
 
-  razorpayCustomerId String? @unique
-
   role       String?
   banned     Boolean?  @default(false)
   banReason  String?

@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { buttonVariants } from "../ui/button";
 import { celebrate } from "@/lib/helpers/celebrate";
+import { env } from "@/lib/env";
 
 interface RazorpayPaymentButtonProps {
   courseId: string;
@@ -36,7 +37,7 @@ export default function RazorpayPaymentButton({
   userName,
   courseSlug,
   isEnrolled = false,
-  isAdmin = false
+  isAdmin = false,
 }: RazorpayPaymentButtonProps) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -69,10 +70,10 @@ export default function RazorpayPaymentButton({
 
       // Razorpay options
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        key: env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: orderData.amount,
         currency: orderData.currency,
-        name: "Your Company Name",
+        name: "Udayam AI Labs",
         description: courseName,
         order_id: orderData.orderId,
         handler: async function (response: any) {
@@ -92,20 +93,29 @@ export default function RazorpayPaymentButton({
             const verifyData = await verifyResponse.json();
 
             if (verifyData.success) {
-              // Success: Show toast and confetti
+              // Success: Show toast, confetti, and redirect to success page
               triggerConfetti();
-              toast.success("Payment successful! You are now enrolled in the course.", {
-                duration: 5000,
-              });
-              router.push(`/dashboard/${courseSlug}`);
+              toast.success(
+                "Payment successful! You are now enrolled in the course.",
+                {
+                  duration: 5000,
+                }
+              );
+              router.push(
+                `/payment/success?courseSlug=${courseSlug}&courseName=${encodeURIComponent(courseName)}`
+              );
             } else {
               // Verification failed: Redirect to failed page
-              router.push(`/payment-failed?reason=failed&courseSlug=${courseSlug}&courseName=${encodeURIComponent(courseName)}`);
+              router.push(
+                `/payment/failed?reason=failed&courseSlug=${courseSlug}&courseName=${encodeURIComponent(courseName)}`
+              );
             }
           } catch (error) {
             console.error("Payment verification error:", error);
             // Verification error: Redirect to failed page
-            router.push(`/payment-failed?reason=failed&courseSlug=${courseSlug}&courseName=${encodeURIComponent(courseName)}`);
+            router.push(
+              `/payment/failed?reason=failed&courseSlug=${courseSlug}&courseName=${encodeURIComponent(courseName)}`
+            );
           }
         },
         prefill: {
@@ -119,7 +129,9 @@ export default function RazorpayPaymentButton({
           ondismiss: function () {
             setLoading(false);
             // User cancelled: Redirect to cancelled page
-            router.push(`/payment-failed?reason=cancelled&courseSlug=${courseSlug}&courseName=${encodeURIComponent(courseName)}`);
+            router.push(
+              `/payment/failed?reason=cancelled&courseSlug=${courseSlug}&courseName=${encodeURIComponent(courseName)}`
+            );
           },
         },
       };
@@ -128,8 +140,11 @@ export default function RazorpayPaymentButton({
       razorpay.open();
     } catch (error) {
       console.error("Payment error:", error);
+      toast.error("Failed to initiate payment. Please try again.");
       // Order creation failed: Redirect to failed page
-      router.push(`/payment-failed?reason=failed&courseSlug=${courseSlug}&courseName=${encodeURIComponent(courseName)}`);
+      router.push(
+        `/payment/failed?reason=failed&courseSlug=${courseSlug}&courseName=${encodeURIComponent(courseName)}`
+      );
       setLoading(false);
     }
   };
@@ -143,9 +158,13 @@ export default function RazorpayPaymentButton({
       <button
         onClick={handlePayment}
         disabled={loading}
-        className={buttonVariants({className:"w-full"})}
+        className={buttonVariants({ className: "w-full" })}
       >
-        {loading ? "Processing..." : (isAdmin || isEnrolled) ? "Go to Dashboard" : `Enroll Now - ₹${amount}`}
+        {loading
+          ? "Processing..."
+          : isAdmin || isEnrolled
+            ? "Go to Dashboard"
+            : `Enroll Now - ₹${amount}`}
       </button>
     </>
   );
