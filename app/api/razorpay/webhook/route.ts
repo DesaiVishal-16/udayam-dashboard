@@ -1,10 +1,13 @@
 /*eslint-disable */
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import { PrismaClient } from "@/prisma/generated/prisma/client";
+import { prisma } from "@/lib/db";
 import { env } from "@/lib/env";
 
-const prisma = new PrismaClient();
+// Validate webhook secret is configured
+if (!env.RAZORPAY_WEBHOOK_SECRET) {
+  throw new Error("RAZORPAY_WEBHOOK_SECRET is not set in environment variables");
+}
 
 // Helper function to verify Razorpay signature
 function verifyWebhookSignature(
@@ -112,8 +115,7 @@ async function handlePaymentCaptured(payment: any) {
       email,
     });
 
-    // Extract metadata from order (you should store courseId and userId in order notes/notes)
-    // Assuming you passed metadata when creating the order
+    // Extract metadata from order notes
     const notes = payment.notes || {};
     const { userId, courseId } = notes;
 
@@ -122,8 +124,9 @@ async function handlePaymentCaptured(payment: any) {
       return;
     }
 
-    // Update enrollment status to Active
-    const enrollment = await prisma.enrollment.updateMany({
+    // Use upsert for idempotency - handles both new enrollments and webhook retries
+    // First try to update any pending enrollment
+    const updatedEnrollment = await prisma.enrollment.updateMany({
       where: {
         userId,
         courseId,
@@ -135,10 +138,24 @@ async function handlePaymentCaptured(payment: any) {
       },
     });
 
-    if (enrollment.count === 0) {
-      console.warn("No pending enrollment found for:", { userId, courseId });
+    if (updatedEnrollment.count === 0) {
+      // Check if an active enrollment already exists (idempotency check)
+      const existingActiveEnrollment = await prisma.enrollment.findFirst({
+        where: {
+          userId,
+          courseId,
+          status: "Active",
+        },
+      });
 
-      // Optionally create enrollment if it doesn't exist
+      if (existingActiveEnrollment) {
+        console.log("Active enrollment already exists for:", { userId, courseId });
+        return; // Already processed, skip
+      }
+
+      // No pending or active enrollment found - create new active enrollment
+      console.warn("No pending enrollment found, creating new active enrollment for:", { userId, courseId });
+      
       await prisma.enrollment.create({
         data: {
           userId,
