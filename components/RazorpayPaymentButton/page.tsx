@@ -18,6 +18,7 @@ interface RazorpayPaymentButtonProps {
   userName: string;
   courseSlug: string;
   isEnrolled?: boolean;
+  isAdmin?: boolean;
 }
 
 declare global {
@@ -34,13 +35,18 @@ export default function RazorpayPaymentButton({
   userEmail,
   userName,
   courseSlug,
-  isEnrolled = false
+  isEnrolled = false,
+  isAdmin = false
 }: RazorpayPaymentButtonProps) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { triggerConfetti } = celebrate();
 
   const handlePayment = async () => {
+    if (isAdmin) {
+      router.push("/admin");
+      return;
+    }
     if (isEnrolled) {
       router.push(`/dashboard/${courseSlug}`);
       return;
@@ -139,7 +145,7 @@ export default function RazorpayPaymentButton({
         disabled={loading}
         className={buttonVariants({className:"w-full"})}
       >
-        {loading ? "Processing..." : isEnrolled ? "Go to Dashboard" : `Enroll Now - ₹${amount}`}
+        {loading ? "Processing..." : (isAdmin || isEnrolled) ? "Go to Dashboard" : `Enroll Now - ₹${amount}`}
       </button>
     </>
   );
