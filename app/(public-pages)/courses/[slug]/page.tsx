@@ -23,6 +23,7 @@ import {
 import { CheckIcon } from "lucide-react";
 import Image from "next/image";
 import { headers } from "next/headers";
+import { buttonVariants } from "@/components/ui/button";
 
 type Params = Promise<{ slug: string }>;
 
@@ -278,7 +279,7 @@ export default async function SlugPage({ params }: { params: Params }) {
               ) : (
                 <a
                   href="/login"
-                  className="block w-full text-center bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700"
+                  className={buttonVariants({ className: "w-full" })}
                 >
                   Login to Enroll
                 </a>

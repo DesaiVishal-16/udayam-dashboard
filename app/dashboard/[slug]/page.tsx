@@ -17,7 +17,7 @@ export default async function CourseSlugRoute({
     redirect(`/dashboard/${slug}/${firstLesson.id}`);
   }
   return (
-    <div className="flex items-center justify-center h-full text-center">
+    <div className="flex flex-col items-center justify-center h-full text-center">
       <h2 className="text-2xl font-bold mb-2">No lessons available</h2>
       <p className="text-muted-foreground">
         This course does not have any lessons yet!

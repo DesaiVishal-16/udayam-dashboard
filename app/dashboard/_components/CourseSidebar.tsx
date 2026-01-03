@@ -27,7 +27,7 @@ export function CourseSidebar({ course, userName }: CourseSidebarProps) {
     { courseData: course },
   );
   const isCourseCompleted = completedLessons === totalLessons;
-  console.log(userName);
+  const isButtonDisabled = !isCourseCompleted || totalLessons === 0;
   return (
     <div className="flex flex-col h-full">
       <div className="pb-4 pr-4 border-b border-border">
@@ -97,7 +97,7 @@ export function CourseSidebar({ course, userName }: CourseSidebarProps) {
         ))}
         <Button
           className="w-full mt-4"
-          disabled={!isCourseCompleted}
+          disabled={isButtonDisabled}
           onClick={() => setOpen(true)}
         >
           Generate Certificate
@@ -111,7 +111,7 @@ export function CourseSidebar({ course, userName }: CourseSidebarProps) {
         <CertificateModal
           open={open}
           onClose={() => setOpen(false)}
-          userName={userName} // OR from server wrapper
+          userName={userName}
           courseName={course.title}
           courseDuration={course.duration}
         />
