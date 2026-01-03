@@ -273,6 +273,7 @@ export default async function SlugPage({ params }: { params: Params }) {
                   userEmail={user.email}
                   userName={user.name}
                   isEnrolled={isEnrolled}
+                  isAdmin={user.role === "admin"}
                 />
               ) : (
                 <a
